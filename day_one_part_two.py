@@ -16,12 +16,13 @@ def string_to_value(s:str):
     return None
 
 for line in lines:
-    line = "fiveight"
     matches = []
-    
-    e = re.search(regex, line)
-    for match in re.finditer(regex, line):
-        matches.append(match.group())
+    length = len(line)
+    for i in range(0, length):
+        match = re.match(regex, line)
+        if match:
+            matches.append(match.group())
+        line = line[1:]
     if len(matches) <= 0:
         continue
     start_val = string_to_value(matches[0])
