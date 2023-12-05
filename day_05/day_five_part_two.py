@@ -1,4 +1,4 @@
-﻿import threading
+﻿import multiprocessing
 
 def source_to_destination(maps, source):
     for map in maps:
@@ -24,6 +24,8 @@ def main():
         "s -> (s0, s1), (s2, s3), (s4, s5), ..."
         a = iter(iterable)
         return zip(a, a)
+    
+    # do it with ranges
 
     seed_to_soil = list(map(lambda x: (int(x.split()[0]), int(x.split()[1]),int(x.split()[2])), lines[3:31]))
     soil_to_fertilizer = list(map(lambda x: (int(x.split()[0]), int(x.split()[1]),int(x.split()[2])), lines[33:43]))
@@ -39,7 +41,7 @@ def main():
     seeds_info = list(map(lambda x: int(x), lines[0].split(":")[1].strip().split()))
     threads = []
     thread_results = []
-    result_lock = threading.Lock()
+    result_lock = multiprocessing.Lock()
     
     for seed_start, seed_length in pairwise(seeds_info):
         def find_lowest_location(list_of_maps, seed_start, seed_length, thread_results:list):
@@ -56,12 +58,12 @@ def main():
         max_length = 10000000
         
         while seed_length > max_length:
-            thread = threading.Thread(target=find_lowest_location, args=(list_of_maps, seed_start, max_length, thread_results))
+            thread = multiprocessing.Process(target=find_lowest_location, args=(list_of_maps, seed_start, max_length, thread_results))
             threads.append(thread)
             thread.start()
             seed_start += max_length
             seed_length -= max_length
-        thread = threading.Thread(target=find_lowest_location, args=(list_of_maps, seed_start, seed_length, thread_results))
+        thread = multiprocessing.Process(target=find_lowest_location, args=(list_of_maps, seed_start, seed_length, thread_results))
         threads.append(thread)
         thread.start()
     
