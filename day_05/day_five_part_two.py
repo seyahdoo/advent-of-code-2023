@@ -29,14 +29,28 @@ def main():
     
 def convert_ranges(maps, ranges):
     new_ranges = []
+    cut_spots = set()
     for map in maps:
         destination_range_start = map[0]
         source_range_start = map[1]
         range_length = map[2]
+        cut_spots.add(source_range_start)
+        cut_spots.add(source_range_start + range_length)
+    for range in ranges:
+        start = range[0]
+        length = range[1]
+        for cut_spot in cut_spots:
+            if cut_spot > start and cut_spots < start + length:
+                
+                pass
         
-        # if source >= source_range_start and source <= source_range_start + range_length:
-        #     return source - source_range_start + destination_range_start
-    return ranges
+        pass
+    
+    
+    
+
+
+    return new_ranges
 
 def find_lowest_on_ranges(ranges):
     return 0
