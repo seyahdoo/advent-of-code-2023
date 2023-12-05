@@ -1,4 +1,5 @@
-﻿
+﻿import threading
+
 def source_to_destination(maps, source):
     for map in maps:
         destination_range_start = map[0]
@@ -36,20 +37,44 @@ def main():
     lowest_location = 0
     seeds = []
     seeds_info = list(map(lambda x: int(x), lines[0].split(":")[1].strip().split()))
-    # total_operations = 0
-    # for seed_start, seed_length in pairwise(seeds_info):
-    #     total_operations += seed_length
-    # current_operation_count = 0
-    for seed_start, seed_length in pairwise(seeds_info):
-        seeds = range(seed_start, seed_start + seed_length)
-        for seed in seeds:
-            location = get_location_from_seed(list_of_maps, seed)
-            # current_operation_count += 1
-            # print(current_operation_count/total_operations)
-            if location <= lowest_location:
-                lowest_location = location
+    threads = []
+    thread_results = []
+    result_lock = threading.Lock()
     
-    print(lowest_location)
+    for seed_start, seed_length in pairwise(seeds_info):
+        def find_lowest_location(list_of_maps, seed_start, seed_length, thread_results:list):
+            lowest_location_in_thread = 0
+            seeds = range(seed_start, seed_start + seed_length)
+            for seed in seeds:
+                location = get_location_from_seed(list_of_maps, seed)
+                if location <= lowest_location_in_thread:
+                    lowest_location_in_thread = location
+            with result_lock:
+                thread_results.append(lowest_location_in_thread)
+            print("done with thread")
+            return
+        max_length = 10000000
+        
+        while seed_length > max_length:
+            thread = threading.Thread(target=find_lowest_location, args=(list_of_maps, seed_start, max_length, thread_results))
+            threads.append(thread)
+            thread.start()
+            seed_start += max_length
+            seed_length -= max_length
+        thread = threading.Thread(target=find_lowest_location, args=(list_of_maps, seed_start, seed_length, thread_results))
+        threads.append(thread)
+        thread.start()
+    
+    total_thread_count = len(threads)
+    done_thread_count = 0
+    print(total_thread_count)
+    for thread in threads:
+        thread.join()
+        done_thread_count += 1
+        print(done_thread_count/done_thread_count)
+
+    thread_results.sort()
+    print(thread_results[0])
     return 
     
         
